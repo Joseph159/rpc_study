@@ -37,6 +37,7 @@ public class Consumer {
                                 });
                     }
                 });
+
         ChannelFuture channelFuture = bootstrap.connect("localhost", 8889).sync();
         Request request = new Request();
         request.setServiceName("com.study.rpc.rpcStudy");

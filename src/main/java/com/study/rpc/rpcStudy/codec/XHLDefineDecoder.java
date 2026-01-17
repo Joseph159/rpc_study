@@ -1,5 +1,6 @@
 package com.study.rpc.rpcStudy.codec;
 
+import com.alibaba.fastjson.JSONObject;
 import com.study.rpc.rpcStudy.message.Message;
 import com.study.rpc.rpcStudy.message.Request;
 import com.study.rpc.rpcStudy.message.Response;
@@ -38,11 +39,11 @@ public class XHLDefineDecoder extends LengthFieldBasedFrameDecoder {
         throw new IllegalArgumentException("消息类型不支持");
     }
 
-    private Request deserializeResponse(byte[] body) {
-        return new Request();
+    private Request deserializeRequest(byte[] body) {
+        return JSONObject.parseObject(body, Request.class);
     }
 
-    private Response deserializeRequest(byte[] body) {
-        return new Response();
+    private Response deserializeResponse(byte[] body) {
+        return JSONObject.parseObject(body, Response.class);
     }
 }

@@ -4,6 +4,6 @@ public class ConsumerApp {
 
     public static void main(String[] args) throws Exception {
         Consumer consumer = new Consumer();
-        consumer.add(1, 2);
+        System.out.println(consumer.add(1, 2));
     }
 }

@@ -1,0 +1,31 @@
+package com.study.rpc.rpcStudy.codec;
+
+import com.alibaba.fastjson.JSONObject;
+import com.study.rpc.rpcStudy.message.Message;
+import com.study.rpc.rpcStudy.message.Request;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.MessageToByteEncoder;
+
+import java.nio.charset.StandardCharsets;
+
+public class RequestEncoder extends MessageToByteEncoder<Request> {
+    @Override
+    protected void encode(ChannelHandlerContext ctx, Request request, ByteBuf out) throws Exception {
+        // 需要内容：数据长度，魔数，消息类型，消息内容
+        byte[] logic = Message.LOGIC;
+        byte messageType = Message.MessageType.REQUEST.getcode();
+        byte[] body = serializeRequest(request);
+        int length = logic.length + Byte.BYTES + body.length;
+
+        out.writeInt(length);
+        out.writeBytes(logic);
+        out.writeByte(messageType);
+        out.writeBytes(body);
+    }
+
+    // 序列化消息
+    private byte[] serializeRequest(Request request) {
+        return JSONObject.toJSONString(request).getBytes(StandardCharsets.UTF_8);
+    }
+}

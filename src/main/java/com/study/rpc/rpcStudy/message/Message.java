@@ -25,7 +25,7 @@ public class Message {
             this.code = (byte) code;
         }
 
-        public byte getcode() {
+        public byte getCode() {
             return code;
         }
 

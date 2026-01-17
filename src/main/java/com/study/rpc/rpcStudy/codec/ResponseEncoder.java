@@ -14,7 +14,7 @@ public class ResponseEncoder extends MessageToByteEncoder<Response> {
     protected void encode(ChannelHandlerContext ctx, Response response, ByteBuf out) throws Exception {
         // 需要内容：数据长度，魔数，消息类型，消息内容
         byte[] logic = Message.LOGIC;
-        byte messageType = Message.MessageType.REQUEST.getcode();
+        byte messageType = Message.MessageType.RESPONSE.getCode();
         byte[] body = serializeResponse(response);
         int length = logic.length + Byte.BYTES + body.length;
 

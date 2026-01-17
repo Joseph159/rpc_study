@@ -31,8 +31,9 @@ public class Consumer {
                                     @Override
                                     protected void channelRead0(ChannelHandlerContext channelHandlerContext, Response s) throws Exception {
                                         System.out.println(s);
+                                        int result = Integer.parseInt(s.getResult().toString());
                                         // 防止add阻塞，手动设置已完成
-                                        future.complete(1);
+                                        future.complete(result);
                                     }
                                 });
                     }

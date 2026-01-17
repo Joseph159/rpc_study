@@ -30,10 +30,10 @@ public class XHLDefineDecoder extends LengthFieldBasedFrameDecoder {
         byte messageType = frame.readByte();
         byte[] body = new byte[frame.readableBytes()];
         frame.readBytes(body);
-        if (Objects.equals(messageType, Message.MessageType.REQUEST.getcode())) {
+        if (Objects.equals(messageType, Message.MessageType.REQUEST.getCode())) {
             return deserializeRequest(body);
         }
-        if (Objects.equals(messageType, Message.MessageType.RESPONSE.getcode())) {
+        if (Objects.equals(messageType, Message.MessageType.RESPONSE.getCode())) {
             return deserializeResponse(body);
         }
         throw new IllegalArgumentException("消息类型不支持");

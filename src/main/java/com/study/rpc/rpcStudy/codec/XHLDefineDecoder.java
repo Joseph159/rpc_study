@@ -1,6 +1,7 @@
 package com.study.rpc.rpcStudy.codec;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.JSONReader;
 import com.study.rpc.rpcStudy.message.Message;
 import com.study.rpc.rpcStudy.message.Request;
 import com.study.rpc.rpcStudy.message.Response;
@@ -8,6 +9,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -40,10 +42,10 @@ public class XHLDefineDecoder extends LengthFieldBasedFrameDecoder {
     }
 
     private Request deserializeRequest(byte[] body) {
-        return JSONObject.parseObject(body, Request.class);
+        return JSONObject.parseObject(new String(body, StandardCharsets.UTF_8), Request.class, JSONReader.Feature.SupportClassForName);
     }
 
     private Response deserializeResponse(byte[] body) {
-        return JSONObject.parseObject(body, Response.class);
+        return JSONObject.parseObject(new String(body, StandardCharsets.UTF_8), Response.class);
     }
 }

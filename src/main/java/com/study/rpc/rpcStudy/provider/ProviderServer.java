@@ -9,19 +9,26 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.string.StringEncoder;
+
 
 public class ProviderServer {
-    private int port;
+    private final int port;
+    private final ProviderRegister providerRegister;
 
     private EventLoopGroup bossEventLoopGroup;
     private EventLoopGroup workerEventLoopGroup;
 
-    public ProviderServer(int port) {
+
+    public ProviderServer(int port, ProviderRegister providerRegister) {
         this.port = port;
+        this.providerRegister = providerRegister;
     }
 
-    public void start() {
+    public <I> void register(Class<I> interfaceClass, I serviceInstance){
+        providerRegister.register(interfaceClass, serviceInstance);
+    }
+
+        public void start() {
         bossEventLoopGroup = new NioEventLoopGroup();
         workerEventLoopGroup = new NioEventLoopGroup(4);
         try {
@@ -37,10 +44,12 @@ public class ProviderServer {
                                     .addLast(new SimpleChannelInboundHandler<Request>() {
                                         // op,param1,param2
                                         @Override
-                                        protected void channelRead0(ChannelHandlerContext channel, Request s) throws Exception {
-                                            System.out.println(s);
+                                        protected void channelRead0(ChannelHandlerContext channel, Request request) throws Exception {
+                                            System.out.println(request);
+                                            ProviderRegister.Invocation<?> service = providerRegister.findService(request.getServiceName());
+                                            Object result = service.invoke(request.getMethodName(), request.getParameterTypes(), request.getParameters());
                                             Response response = new Response();
-                                            response.setResult(1);
+                                            response.setResult(result);
                                             channel.writeAndFlush(response);
                                         }
                                     });
@@ -59,9 +68,5 @@ public class ProviderServer {
         if (workerEventLoopGroup != null) {
             workerEventLoopGroup.shutdownGracefully();
         }
-    }
-
-    private static int add(int a, int b) {
-        return a + b;
     }
 }

@@ -1,5 +1,6 @@
 package com.study.rpc.rpcStudy.consumer;
 
+import com.study.rpc.rpcStudy.api.Add;
 import com.study.rpc.rpcStudy.codec.RequestEncoder;
 import com.study.rpc.rpcStudy.message.Request;
 import com.study.rpc.rpcStudy.message.Response;
@@ -14,39 +15,42 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 
 import java.util.concurrent.CompletableFuture;
 
-public class Consumer {
+public class Consumer implements Add {
 
-    public int add(int a, int b) throws Exception {
-        CompletableFuture<Integer> future = new CompletableFuture<>();
-        Bootstrap bootstrap = new Bootstrap();
-        bootstrap.group(new NioEventLoopGroup(4))
-                .channel(NioSocketChannel.class)
-                .handler(new ChannelInitializer<NioSocketChannel>() {
-                    @Override
-                    protected void initChannel(NioSocketChannel socketChannel) throws Exception {
-                        socketChannel.pipeline()
-                                .addLast(new XHLDefineDecoder())
-                                .addLast(new RequestEncoder())
-                                .addLast(new SimpleChannelInboundHandler<Response>() {
-                                    @Override
-                                    protected void channelRead0(ChannelHandlerContext channelHandlerContext, Response s) throws Exception {
-                                        System.out.println(s);
-                                        int result = Integer.parseInt(s.getResult().toString());
-                                        // 防止add阻塞，手动设置已完成
-                                        future.complete(result);
-                                    }
-                                });
-                    }
-                });
+    public int add(int a, int b) {
+        try {
+            CompletableFuture<Integer> future = new CompletableFuture<>();
+            Bootstrap bootstrap = new Bootstrap();
+            bootstrap.group(new NioEventLoopGroup(4))
+                    .channel(NioSocketChannel.class)
+                    .handler(new ChannelInitializer<NioSocketChannel>() {
+                        @Override
+                        protected void initChannel(NioSocketChannel socketChannel) throws Exception {
+                            socketChannel.pipeline()
+                                    .addLast(new XHLDefineDecoder())
+                                    .addLast(new RequestEncoder())
+                                    .addLast(new SimpleChannelInboundHandler<Response>() {
+                                        @Override
+                                        protected void channelRead0(ChannelHandlerContext channelHandlerContext, Response s) throws Exception {
+                                            int result = Integer.parseInt(s.getResult().toString());
+                                            // 防止add阻塞，手动设置已完成
+                                            future.complete(result);
+                                        }
+                                    });
+                        }
+                    });
 
-        ChannelFuture channelFuture = bootstrap.connect("localhost", 8889).sync();
-        Request request = new Request();
-        request.setServiceName("com.study.rpc.rpcStudy");
-        request.setMethodName("123");
-        request.setParameterTypes(new String[]{"int", "int"});
-        request.setParameters(new Object[]{1,2});
+            ChannelFuture channelFuture = bootstrap.connect("localhost", 8889).sync();
+            Request request = new Request();
+            request.setServiceName(Add.class.getName());
+            request.setMethodName("add");
+            request.setParameterTypes(new Class[]{int.class, int.class});
+            request.setParameters(new Object[]{a, b});
 
-        channelFuture.channel().writeAndFlush(request);
-        return future.get();
+            channelFuture.channel().writeAndFlush(request);
+            return future.get();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
